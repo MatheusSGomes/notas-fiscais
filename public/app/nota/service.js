@@ -31,7 +31,15 @@ export const notasService = {
   sumItems(code) {
     
     const filterItems = partialize(filterItemsByCode, code);
-    
-    return this.listAll().then(sumItems(code));
+    const sumItems = compose(sumItemsValue, filterItems, getItemsFromNotas);
+
+    return this.listAll()
+      .then(notas => 
+        sumItemsValue(
+          filterItems(
+            getItemsFromNotas(notas)
+            )
+          )      
+        );
   }
 }
