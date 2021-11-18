@@ -26,3 +26,14 @@ const action = operations(() =>
 document
   .querySelector('#myButton')
   .onclick = action;
+
+
+
+const textToArray = textM => textM.map(text => Array.from(text));
+
+const arrayToText = arrayM => arrayM.map(array => array.join(''));
+
+const transform = pipe(textToArray, arrayToText)
+const result = transform(Maybe.of(null))
+
+console.log(result.getOrElse('')); // ''
