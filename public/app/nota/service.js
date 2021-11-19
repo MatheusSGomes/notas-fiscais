@@ -1,5 +1,6 @@
 import { handleStatus } from '../utils/promise-helpers.js';
 import { partialize, compose, pipe } from '../utils/operators.js';
+import { Maybe } from '../utils/maybe.js';
 
 const API = 'http://localhost:3000/notas';
 
@@ -9,35 +10,31 @@ const filterItemsByCode = (code, items) => items.filter(item => item.codigo == c
 
 const sumItemsValue = items => items.reduce((total, item) =>  total + item.valor, 0);
 
-
-const sumItems = code => notas => notas
-  .$flatMap(nota => nota.itens)
-  .filter(item => item.codigo == code)
-  .reduce((total, item) =>  total + item.valor, 0);
-
 export const notasService = {
 
   listAll() {
 
     return fetch(API)
-    .then(handleStatus)
-    .then(notas => {
-      if(notas) return notas;
-      return [];
-    })
-    .catch(err => {
-      console.log(err);
-      return Promise.reject('Não foi possível obter as notas fiscais')
-
-    })
-  },
+      .then(handleStatus)
+      .then(notas => notas)
+      .catch(err => {
+        console.log(err);
+        return Promise.reject('Não foi possível obter as notas fiscais')
+      })
+    },
 
   sumItems(code) {
     
     const filterItems = partialize(filterItemsByCode, code);
-    const sumItems = pipe(getItemsFromNotas, filterItems, sumItemsValue);
+    
+    const sumItems = pipe(
+      getItemsFromNotas, 
+      filterItems,
+      sumItemsValue
+    );
 
     return this.listAll()
-      .then(sumItems);
+      .then(sumItems)
+      // .then(result => result.getOrElse(0))
   }
 }
